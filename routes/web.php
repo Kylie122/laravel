@@ -22,3 +22,5 @@ Route::get('/game/history', [GameController::class, 'history'])->name('game.hist
 Route::get('/game/result', [GameController::class, 'result'])->name('game.result');
 
 Route::post('/restart', [GameController::class, 'restart'])->name('game.restart');
+
+Route::get('/best-score', [GameController::class, 'bestScore']) ->name('best-score');

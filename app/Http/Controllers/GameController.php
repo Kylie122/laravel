@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\GameRecord;
 
 class GameController
 {
@@ -22,11 +23,13 @@ class GameController
             'player_name' => 'required|string|max:20'
         ]);
 
+        session()->forget(['current_event', 'choice_event']);
+
         session([
             'game' => [
                 'player_name' => $request->player_name,
                 'day' => 1,
-                'health' => 200,
+                'health' => 100,
                 'food' => 20,
                 'water' => 20,
                 'ammo' => 10,
@@ -85,6 +88,39 @@ class GameController
 
     $events = [
         'food' => [
+            [
+                'title' => 'Small Farm',
+                'message' => 'You discovered a small abandoned farm with some food left behind.',
+                'food' => 10,
+                'water' => 2,
+                'health' => 5,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 50,
+                'item' => 'Canned Food'
+            ],
+            [
+                'title' => 'Friendly Survivor',
+                'message' => 'A friendly survivor gave you some food before leaving.',
+                'food' => 8,
+                'water' => 2,
+                'health' => 0,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 40,
+                'item' => null
+            ],
+            [
+                'title' => 'Abandoned Kitchen',
+                'message' => 'You found an untouched kitchen with plenty of food.',
+                'food' => 12,
+                'water' => 3,
+                'health' => 0,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 60,
+                'item' => 'Canned Food'
+            ],
             [
                 'title' => 'Abandoned Grocery Store',
                 'message' => 'You found an abandoned grocery store filled with canned food.',
@@ -145,12 +181,47 @@ class GameController
                         'score' => 50,
                         'item' => null
                     ]
+                    
+                    
                 ]
             ]
         ],
 
         'water' => [
+                [
+                'title' => 'Clean Well',
+                'message' => 'You discovered a clean well with plenty of fresh water.',
+                'food' => 0,
+                'water' => 12,
+                'health' => 5,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 50,
+                'item' => 'Water Bottle'
+            ],
             [
+                'title' => 'Water Supply',
+                'message' => 'You found several bottles of clean drinking water.',
+                'food' => 2,
+                'water' => 10,
+                'health' => 0,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 45,
+                'item' => 'Water Bottle'
+            ],
+            [
+                'title' => 'Rainwater',
+                'message' => 'You collected clean rainwater while traveling.',
+                'food' => 0,
+                'water' => 8,
+                'health' => 0,
+                'ammo' => 0,
+                'survivors' => 0,
+                'score' => 35,
+                'item' => null
+            ],
+        [
                 'title' => 'Water Station',
                 'message' => 'You discovered a clean water supply.',
                 'food' => 0,
@@ -215,6 +286,39 @@ class GameController
         ],
 
         'weapon' => [
+                        [
+                'title' => 'Abandoned Armory',
+                'message' => 'You discovered a small supply of ammunition.',
+                'food' => 0,
+                'water' => 0,
+                'health' => 0,
+                'ammo' => 15,
+                'survivors' => 0,
+                'score' => 80,
+                'item' => 'Ammunition'
+            ],
+            [
+                'title' => 'Empty Police Car',
+                'message' => 'You found ammunition inside an abandoned police vehicle.',
+                'food' => 0,
+                'water' => 0,
+                'health' => 0,
+                'ammo' => 8,
+                'survivors' => 0,
+                'score' => 45,
+                'item' => 'Ammunition'
+            ],
+            [
+                'title' => 'Quiet Road',
+                'message' => 'You searched the area without encountering any zombies.',
+                'food' => 2,
+                'water' => 2,
+                'health' => 5,
+                'ammo' => 5,
+                'survivors' => 0,
+                'score' => 40,
+                'item' => null
+            ],
             [
                 'title' => 'Police Station',
                 'message' => 'You found ammunition inside an abandoned police station.',
@@ -280,6 +384,39 @@ class GameController
         ],
 
         'medicine' => [
+                    [
+            'title' => 'First Aid Kit',
+            'message' => 'You found a first aid kit inside an abandoned house.',
+            'food' => 0,
+            'water' => 0,
+            'health' => 25,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 60,
+            'item' => 'Medicine'
+        ],
+        [
+            'title' => 'Medical Supplies',
+            'message' => 'You discovered useful medical supplies in a clinic.',
+            'food' => 0,
+            'water' => 2,
+            'health' => 20,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 55,
+            'item' => 'Medicine'
+        ],
+        [
+            'title' => 'Safe Clinic',
+            'message' => 'You found a quiet clinic and treated your injuries.',
+            'food' => 0,
+            'water' => 0,
+            'health' => 30,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 70,
+            'item' => 'Med Kit'
+        ],
             [
                 'title' => 'Abandoned Hospital',
                 'message' => 'You found medical supplies inside an abandoned hospital.',
@@ -345,6 +482,39 @@ class GameController
         ],
 
         'explore' => [
+                    [
+            'title' => 'Abandoned House',
+            'message' => 'You found an empty house with useful supplies.',
+            'food' => 5,
+            'water' => 5,
+            'health' => 10,
+            'ammo' => 3,
+            'survivors' => 0,
+            'score' => 70,
+            'item' => 'Med Kit'
+        ],
+        [
+            'title' => 'Friendly Survivors',
+            'message' => 'A friendly group shared some supplies with you.',
+            'food' => 6,
+            'water' => 6,
+            'health' => 5,
+            'ammo' => 5,
+            'survivors' => 1,
+            'score' => 100,
+            'item' => null
+        ],
+        [
+            'title' => 'Quiet Neighborhood',
+            'message' => 'You explored a quiet neighborhood and found useful supplies.',
+            'food' => 4,
+            'water' => 4,
+            'health' => 5,
+            'ammo' => 2,
+            'survivors' => 0,
+            'score' => 60,
+            'item' => null
+        ],
             [
                 'title' => 'Survivor Found',
                 'message' => 'You discovered another survivor hiding inside a house.',
@@ -468,6 +638,39 @@ class GameController
         ],
 
         'rest' => [
+                    [
+            'title' => 'Peaceful Shelter',
+            'message' => 'You found a secure shelter and had a peaceful night.',
+            'food' => -1,
+            'water' => -1,
+            'health' => 20,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 20,
+            'item' => null
+        ],
+        [
+            'title' => 'Good Night Sleep',
+            'message' => 'Your group rested well and recovered from the journey.',
+            'food' => -1,
+            'water' => -1,
+            'health' => 25,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 25,
+            'item' => null
+        ],
+        [
+            'title' => 'Safe Camp',
+            'message' => 'You found a safe place to rest without any trouble.',
+            'food' => -1,
+            'water' => -1,
+            'health' => 15,
+            'ammo' => 0,
+            'survivors' => 0,
+            'score' => 15,
+            'item' => null
+        ],
             [
                 'title' => 'Quiet Night',
                 'message' => 'You stayed inside a secure building and recovered some health.',
@@ -518,6 +721,8 @@ class GameController
     $event = $events[$action][array_rand($events[$action])];
 
     if (isset($event['choice']) && $event['choice'] === true) {
+        session()->forget('current_event');
+
         session([
             'game' => $game,
             'choice_event' => $event
@@ -614,12 +819,16 @@ private function applyEvent($game, $event)
         $game['history'][] = 'Your group ran out of essential supplies.';
     }
 
-    if ($game['day'] >= 30 && $game['status'] === 'playing') {
-        $game['status'] = 'won';
-        $game['score'] += 500;
-        $game['history'][] = 'Day 30: You survived the zombie apocalypse!';
-    }
+   if ($game['day'] >= 30 && $game['status'] === 'playing') {
+    $game['status'] = 'won';
+    $game['score'] += 500;
+    $game['history'][] = 'Day 30: You survived the zombie apocalypse!';
 
+    GameRecord::create([
+        'name' => $game['player_name'],
+        'score' => $game['score'],
+    ]);
+        }
     return $game;
 }
 
@@ -627,8 +836,17 @@ private function applyEvent($game, $event)
     {
         $game = session('game');
         $event = session('current_event');
+        $choiceEvent = session('choice_event');
 
-        if (!$game || !$event) {
+        if (!$game) {
+            return redirect()->route('home');
+        }
+
+        if ($choiceEvent && $game['status'] === 'playing') {
+            return view('game.event', compact('game', 'choiceEvent'));
+        }
+
+        if (!$event) {
             return redirect()->route('game.dashboard');
         }
 
@@ -668,11 +886,21 @@ private function applyEvent($game, $event)
         return view('game.result', compact('game'));
     }
 
+   public function bestScore()
+{
+    $scores = \DB::table('game_records')
+        ->orderByDesc('score')
+        ->limit(10)
+        ->get();
+
+    return view('best-score', compact('scores'));
+}
     public function restart()
     {
         session()->forget([
             'game',
-            'current_event'
+            'current_event',
+            'choice_event'
         ]);
 
         return redirect()->route('game.setup');
