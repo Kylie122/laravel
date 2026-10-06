@@ -141,7 +141,7 @@
                 font-size: 65px;
             }
         }
-       
+HEAD   
     .score-btn {
         display: inline-block;
         width: 100%;
@@ -198,7 +198,10 @@
         <a href="{{ route('game.setup') }}" class="start-btn">
             ☠️ Start Survival
         </a>
+<<<<<<< HEAD
         <a href="{{ route('best-score') }}" class="score-btn"> 🏆 See Best Score </a>
+=======
+>>>>>>> f424b5657147bfccd703f946e3c5cfd255ba3052
 
         <div class="features">
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ isset($choiceEvent) ? 'Event Choice' : 'Event Result' }}</title>
+    <title>Event Result</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,35 +28,22 @@
             border-radius: 12px;
             padding: 28px;
             width: 100%;
-            max-width: 520px;
+            max-width: 460px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
 
         h1 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: #f1f5f9;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        h2 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-        }
-
-        .day-badge {
-            display: inline-block;
-            background-color: #334155;
-            color: #cbd5e1;
-            font-size: 0.85rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .message {
-            color: #cbd5e1;
+        .event-message {
+            color: #94a3b8;
+            font-size: 0.95rem;
             line-height: 1.5;
+            margin-bottom: 16px;
         }
 
         .divider {
@@ -66,121 +53,231 @@
             margin: 20px 0;
         }
 
-        .changes {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .section-title {
+            font-size: 1rem;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        .choices-group {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .btn-choice {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: #334155;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-choice:hover {
+            background-color: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        .changes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .change-item {
             background-color: #0f172a;
             border: 1px solid #334155;
+            padding: 10px 14px;
             border-radius: 8px;
-            padding: 12px;
-            color: #cbd5e1;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .change-value {
-            display: block;
-            color: #f8fafc;
-            font-weight: 700;
-            margin-top: 4px;
+        .val-positive {
+            color: #4ade80;
+            font-weight: bold;
         }
 
-        .actions {
-            display: grid;
-            gap: 10px;
+        .val-negative {
+            color: #f87171;
+            font-weight: bold;
         }
 
-        .button {
+        .item-found {
+            background-color: #1e1b4b;
+            border: 1px solid #4338ca;
+            color: #c7d2fe;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .btn-nav {
             display: block;
             width: 100%;
-            border: 0;
-            border-radius: 8px;
             padding: 12px 16px;
             background-color: #2563eb;
-            color: #fff;
-            text-align: center;
+            color: white;
             text-decoration: none;
             font-size: 0.95rem;
             font-weight: 600;
+            border-radius: 8px;
+            border: none;
             cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
-        .button:hover {
+        .btn-nav:hover {
             background-color: #1d4ed8;
         }
 
-        .button-secondary {
-            background-color: #334155;
+        .status-dead {
+            color: #f87171;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
         }
 
-        .button-secondary:hover {
-            background-color: #475569;
+        .status-won {
+            color: #4ade80;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
         }
     </style>
 </head>
 <body>
-    <main class="event-card">
-        @if (isset($choiceEvent))
+
+    <div class="event-card">
+
+        @php
+            $choiceEvent = session('choice_event');
+        @endphp
+
+        @if ($choiceEvent)
+
             <h1>{{ $choiceEvent['title'] }}</h1>
-            <div class="day-badge">Day {{ $game['day'] }}</div>
-            <p class="message">{{ $choiceEvent['message'] }}</p>
+            <p class="event-message">{{ $choiceEvent['message'] }}</p>
 
             <hr class="divider">
 
-            <h2>What will you do?</h2>
-            <form action="{{ route('game.choice') }}" method="POST" class="actions">
+            <h2 class="section-title">What will you do?</h2>
+
+            <form action="{{ route('game.choice') }}" method="POST" class="choices-group">
                 @csrf
+
                 @foreach ($choiceEvent['choices'] as $key => $choice)
-                    <button type="submit" name="choice" value="{{ $key }}" class="button">
+                    <button type="submit" name="choice" value="{{ $key }}" class="btn-choice">
                         {{ $choice['text'] }}
                     </button>
                 @endforeach
             </form>
+
         @else
-            <h1>
-                @if ($game['status'] === 'won')
-                    🎉 You survived!
-                @elseif ($game['status'] === 'dead')
-                    💀 Game over
-                @else
-                    Event Result
-                @endif
-            </h1>
-            <div class="day-badge">Day {{ max(1, $game['day'] - 1) }}</div>
-            <h2>{{ $event['title'] }}</h2>
-            <p class="message">{{ $event['message'] }}</p>
+
+            <h1>{{ $event['title'] }}</h1>
+            <p class="event-message">{{ $event['message'] }}</p>
 
             <hr class="divider">
 
-            <h2>Changes</h2>
-            <div class="changes">
-                @foreach (['health' => '❤️ Health', 'food' => '🍖 Food', 'water' => '💧 Water', 'ammo' => '🔫 Ammo', 'survivors' => '👥 Survivors', 'score' => '⭐ Score'] as $key => $label)
+            <h2 class="section-title">Changes</h2>
+
+            <div class="changes-list">
+                @if ($event['health'] != 0)
                     <div class="change-item">
-                        {{ $label }}
-                        <span class="change-value">{{ $event[$key] > 0 ? '+' : '' }}{{ $event[$key] }}</span>
+                        <span>❤️ Health</span>
+                        <span class="{{ $event['health'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['health'] > 0 ? '+' : '' }}{{ $event['health'] }}
+                        </span>
                     </div>
-                @endforeach
-                @if ($event['item'])
+                @endif
+
+                @if ($event['food'] != 0)
                     <div class="change-item">
-                        🎒 Item found
-                        <span class="change-value">{{ $event['item'] }}</span>
+                        <span>🍖 Food</span>
+                        <span class="{{ $event['food'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['food'] > 0 ? '+' : '' }}{{ $event['food'] }}
+                        </span>
+                    </div>
+                @endif
+
+                @if ($event['water'] != 0)
+                    <div class="change-item">
+                        <span>💧 Water</span>
+                        <span class="{{ $event['water'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['water'] > 0 ? '+' : '' }}{{ $event['water'] }}
+                        </span>
+                    </div>
+                @endif
+
+                @if ($event['ammo'] != 0)
+                    <div class="change-item">
+                        <span>🔫 Ammo</span>
+                        <span class="{{ $event['ammo'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['ammo'] > 0 ? '+' : '' }}{{ $event['ammo'] }}
+                        </span>
+                    </div>
+                @endif
+
+                @if ($event['survivors'] != 0)
+                    <div class="change-item">
+                        <span>👥 Survivors</span>
+                        <span class="{{ $event['survivors'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['survivors'] > 0 ? '+' : '' }}{{ $event['survivors'] }}
+                        </span>
+                    </div>
+                @endif
+
+                @if ($event['score'] != 0)
+                    <div class="change-item">
+                        <span>⭐ Score</span>
+                        <span class="{{ $event['score'] > 0 ? 'val-positive' : 'val-negative' }}">
+                            {{ $event['score'] > 0 ? '+' : '' }}{{ $event['score'] }}
+                        </span>
                     </div>
                 @endif
             </div>
 
+            @if ($event['item'])
+                <div class="item-found">🎒 Item found: {{ $event['item'] }}</div>
+            @endif
+
             <hr class="divider">
 
-            <div class="actions">
-                <a href="{{ $game['status'] === 'playing' ? route('game.dashboard') : route('game.result') }}" class="button">
-                    {{ $game['status'] === 'playing' ? 'Continue' : 'View Final Results' }}
+            @if ($game['status'] === 'dead')
+
+                <h2 class="status-dead">☠️ You died!</h2>
+                <a href="{{ route('game.result') }}">
+                    <button class="btn-nav">View Result</button>
                 </a>
-                @if ($game['status'] === 'playing')
-                    <a href="{{ route('game.history') }}" class="button button-secondary">View History</a>
-                @endif
-            </div>
+
+            @elseif ($game['status'] === 'won')
+
+                <h2 class="status-won">🎉 You survived!</h2>
+                <a href="{{ route('game.result') }}">
+                    <button class="btn-nav">View Result</button>
+                </a>
+
+            @else
+
+                <a href="{{ route('game.dashboard') }}">
+                    <button class="btn-nav">Return to Dashboard</button>
+                </a>
+
+            @endif
+
         @endif
-    </main>
+
+    </div>
+
 </body>
 </html>
